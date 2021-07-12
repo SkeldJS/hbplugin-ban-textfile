@@ -1,0 +1,17 @@
+{
+  "name": "hbplugin-ban-textfile",
+  "version": "1.0.2",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p ./",
+    "prepack": "rm -rf dist && yarn build",
+    "publish": "yarn npm publish --access public"
+  },
+  "devDependencies": {
+    "@skeldjs/hindenburg": "link:../..",
+    "typescript": "^4.3.5"
+  },
+  "files": [
+    "dist"
+  ]
+}
