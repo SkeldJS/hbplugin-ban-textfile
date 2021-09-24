@@ -1,18 +1,14 @@
 import fs from "fs/promises";
 
-import { DisconnectReason } from "@skeldjs/constant";
-
 import {
+    DisconnectReason,
     CliCommand,
     ClientBanEvent,
     ClientConnectEvent,
     EventListener,
     HindenburgPlugin,
-    Plugin,
-    Room,
-    Worker
+    Plugin
 } from "@skeldjs/hindenburg";
-import { PlayerSendChatEvent } from "@skeldjs/core";
 
 interface IpBanInfo {
     reason: string;
@@ -27,16 +23,7 @@ interface IpBanInfo {
     order: "none"
 })
 export default class extends Plugin {
-    bannedIps: Record<string, IpBanInfo>;
-
-    constructor(
-        public readonly worker: Worker,
-        public readonly config: any
-    ) {
-        super(worker, config);
-
-        this.bannedIps = {};
-    }
+    bannedIps: Record<string, IpBanInfo> = {};
 
     async onPluginLoad() {
         await this.readBanned();
@@ -47,21 +34,19 @@ export default class extends Plugin {
             const data = await fs.readFile("./banned_ips.json", "utf8");
             this.bannedIps = JSON.parse(data);
         } catch (e) {
-            if (e.code === "ENOENT") {
+            if ((e as any).code === "ENOENT") {
                 await fs.writeFile("./banned_ips.json", "{\n\n}", "utf8");
                 return;
             }
             throw e;
         }
     }
-    
+
     async writeBanned() {
         await fs.writeFile("./banned_ips.json", JSON.stringify(this.bannedIps, undefined, 4), "utf8");
     }
 
-    @CliCommand({
-        usage: "unban <ip>"
-    })
+    @CliCommand({ usage: "unban <ip>" })
     async onUnbanClient(args: any) {
         if (this.bannedIps[args.ip]) {
             delete this.bannedIps[args.ip];
@@ -74,7 +59,7 @@ export default class extends Plugin {
 
     @EventListener("client.ban")
     async onClientBan(ev: ClientBanEvent) {
-        this.bannedIps[ev.client.rinfo.address] = {
+        this.bannedIps[ev.client.remoteInfo.address] = {
             reason: ev.reason,
             username: ev.client.username,
             bannedAt: Date.now(),
@@ -87,12 +72,12 @@ export default class extends Plugin {
     @EventListener("client.connect")
     async onClientConnect(ev: ClientConnectEvent) {
         await this.readBanned();
-        const bannedUntil = this.bannedIps[ev.client.rinfo.address];
+        const bannedUntil = this.bannedIps[ev.client.remoteInfo.address];
         if (bannedUntil) {
             if (Date.now() < bannedUntil.bannedAt + (bannedUntil.duration * 1000)) {
                 ev.client.disconnect(DisconnectReason.Banned);
             } else {
-                delete this.bannedIps[ev.client.rinfo.address];
+                delete this.bannedIps[ev.client.remoteInfo.address];
                 await this.writeBanned();
             }
         }
