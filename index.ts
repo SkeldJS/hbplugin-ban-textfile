@@ -72,7 +72,7 @@ export default class extends Plugin {
     @EventListener("client.connect")
     async onClientConnect(ev: ClientConnectEvent) {
         await this.readBanned();
-        const bannedUntil = this.bannedIps[ev.client.remoteInfo.address];
+        const bannedUntil = this.bannedIps[ev.client.remoteInfo ? ev.client.remoteInfo.address : '127.0.0.1'];
         if (bannedUntil) {
             if (Date.now() < bannedUntil.bannedAt + (bannedUntil.duration * 1000)) {
                 ev.client.disconnect(DisconnectReason.Banned);
