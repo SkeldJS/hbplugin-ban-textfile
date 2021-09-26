@@ -59,7 +59,7 @@ export default class extends Plugin {
 
     @EventListener("client.ban")
     async onClientBan(ev: ClientBanEvent) {
-        this.bannedIps[ev.client.remoteInfo.address] = {
+        this.bannedIps[ev.client.remoteInfo ? ev.client.remoteInfo.address : '127.0.0.1'] = {
             reason: ev.reason,
             username: ev.client.username,
             bannedAt: Date.now(),
