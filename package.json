@@ -4,7 +4,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc -p ./",
-    "prepack": "rm -rf dist && yarn build",
+    "prepack": "yarn build",
     "publish": "yarn npm publish --access public"
   },
   "devDependencies": {
