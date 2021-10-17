@@ -55,7 +55,7 @@ export default class extends WorkerPlugin {
 
     @EventListener("client.ban")
     async onClientBan(ev: ClientBanEvent) {
-        this.bannedIps[ev.client.remoteInfo.address] = {
+        this.bannedIps[ev.client.remoteInfo ? ev.client.remoteInfo.address : '127.0.0.1'] = {
             reason: ev.reason,
             username: ev.client.username,
             bannedAt: Date.now(),
@@ -68,7 +68,7 @@ export default class extends WorkerPlugin {
     @EventListener("client.connect")
     async onClientConnect(ev: ClientConnectEvent) {
         await this.readBanned();
-        const bannedUntil = this.bannedIps[ev.client.remoteInfo.address];
+        const bannedUntil = this.bannedIps[ev.client.remoteInfo ? ev.client.remoteInfo.address : '127.0.0.1'];
         if (bannedUntil) {
             if (Date.now() < bannedUntil.bannedAt + (bannedUntil.duration * 1000)) {
                 ev.client.disconnect(DisconnectReason.Banned);
