@@ -7,7 +7,7 @@ import {
     ClientConnectEvent,
     EventListener,
     HindenburgPlugin,
-    Plugin
+    WorkerPlugin
 } from "@skeldjs/hindenburg";
 
 interface IpBanInfo {
@@ -17,12 +17,8 @@ interface IpBanInfo {
     duration: number;
 }
 
-@HindenburgPlugin({
-    id: "hbplugin-ban-textfile",
-    version: "1.0.0",
-    order: "none"
-})
-export default class extends Plugin {
+@HindenburgPlugin("hbplugin-ban-textfile", "1.0.5", "none")
+export default class extends WorkerPlugin {
     bannedIps: Record<string, IpBanInfo> = {};
 
     async onPluginLoad() {
